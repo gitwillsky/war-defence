@@ -19,6 +19,11 @@ var _acc := 0.0
 var _speed := 1.0
 var _paused := false
 var _pending_def: StringName = &""
+var _menu := MainMenu.new()
+var _menu_open := true
+var _menu_title := true
+var _attract_t := 0.0
+var skip_menu := false  # 开发用：跳过标题菜单直接开局（autoplay）
 
 
 func _ready() -> void:
@@ -33,7 +38,19 @@ func _ready() -> void:
 	_sound.setup(_assets)
 	add_child(_sound)
 	_sound.play_music("music.power")
+	_menu.setup(_assets)
+	add_child(_menu)
+	_menu.start_pressed.connect(func() -> void: _close_menu())
+	_menu.resume_pressed.connect(func() -> void: _close_menu())
+	_menu.restart_pressed.connect(func() -> void:
+		_start_session()
+		_close_menu())
+	_menu.quit_pressed.connect(func() -> void: get_tree().quit())
 	_start_session()
+	if skip_menu:
+		_close_menu()
+	else:
+		_open_menu(true)
 
 
 ## 界面文字是中文：优先用系统里的 CJK 字体（引擎不内置字体文件）。
@@ -56,6 +73,7 @@ func _start_session() -> void:
 	_view = WorldView.new()
 	_root.add_child(_view)
 	_view.setup(_session.world, _assets)
+	_view.set_terrain(_session.terrain, _session.terrain_kinds, _session.map_pad)
 	_view.add_props(_session.props)
 	_directors = [SoundDirector.new(_session.world, _sound)]
 	_siren_cooldown = 0.0
@@ -64,6 +82,8 @@ func _start_session() -> void:
 	_view.add_child(_placement)
 	_camera = IsoCamera.new()
 	_camera.bounds = _view.map_bounds().grow(120.0)
+	_camera.map_cells = Vector2i(_session.world.grid.width, _session.world.grid.height)
+	_camera.pad_cells = _session.map_pad
 	_camera.position = IsoProjection.to_screen(_session.base_center())
 	_view.add_child(_camera)
 	_camera.make_current()
@@ -114,6 +134,32 @@ func _connect_signals() -> void:
 	_session.rules.game_over.connect(func(won: bool) -> void: _hud.show_game_over(won, _session.rules.kills))
 
 
+func _open_menu(title: bool) -> void:
+	_menu_open = true
+	_menu_title = title
+	_menu.open(title)
+	_hud.visible = not title
+	_camera.set_process(false)
+	_camera.set_process_unhandled_input(false)
+
+
+func _close_menu() -> void:
+	_menu_open = false
+	_menu.close()
+	_hud.visible = true
+	_camera.set_process(true)
+	_camera.set_process_unhandled_input(true)
+	_camera.position = IsoProjection.to_screen(_session.base_center())
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and (event as InputEventKey).keycode == KEY_ESCAPE:
+		if _menu_open and not _menu_title:
+			_close_menu()
+		elif not _menu_open:
+			_open_menu(false)
+
+
 func _on_build_selected(def_id: StringName) -> void:
 	var reason := _session.build.afford_reason(_session.world, Team.PLAYER, def_id)
 	if reason != "":
@@ -146,6 +192,12 @@ func _on_sell_toggled() -> void:
 
 func _process(delta: float) -> void:
 	if _session == null:
+		return
+	if _menu_open:
+		if _menu_title:  # 标题画面：镜头绕基地缓缓漂移
+			_attract_t += delta
+			_camera.position = IsoProjection.to_screen(_session.base_center()) + Vector2(cos(_attract_t * 0.12) * 260.0, sin(_attract_t * 0.2) * 110.0)
+		_hud.refresh(delta)
 		return
 	if not _paused and not _session.rules.finished:
 		_acc += minf(delta, 0.25) * _speed

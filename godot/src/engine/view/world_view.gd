@@ -8,22 +8,22 @@ var assets: AssetProvider
 var _entities := Node2D.new()
 var _fx := Node2D.new()
 var _views: Dictionary = {}  # entity id -> EntityView
-var _terrain: Array[SpriteSet] = []  # [0] 主地面，其余为点缀变体
-const VARIANT_PERCENT := 5
+var _terrain_view := TerrainView.new()
+
+
+## 地形图（含类别表）；在 setup 前设置。
+func set_terrain(map: TerrainMap, kind_defs: Dictionary, pad: int = 0) -> void:
+	_terrain_view.pad = pad
+	_terrain_view.setup(map, kind_defs, assets)
 
 
 func setup(sim: SimWorld, asset_provider: AssetProvider) -> void:
 	world = sim
 	assets = asset_provider
-	var base := assets.get_sprite("terrain.ground")
-	if base != null:
-		_terrain.append(base)
-		var i := 1
-		while assets.has_sprite("terrain.ground_%d" % i):
-			_terrain.append(assets.get_sprite("terrain.ground_%d" % i))
-			i += 1
+	_terrain_view.assets = asset_provider
 	_entities.y_sort_enabled = true
 	y_sort_enabled = true
+	add_child(_terrain_view)
 	add_child(_entities)
 	add_child(_fx)
 	_fx.z_index = 4096
@@ -35,11 +35,12 @@ func setup(sim: SimWorld, asset_provider: AssetProvider) -> void:
 	world.events.subscribe(&"strike", _on_strike)
 	for e in world.entities.values():
 		_add_view(e)
-	queue_redraw()
 
 
 func _process(delta: float) -> void:
-	for view: EntityView in _views.values():
+	for view in _views.values():
+		if view is ProjectileView and not view.configured:
+			_configure_projectile(view)
 		view.refresh(delta)
 
 
@@ -66,27 +67,49 @@ func add_props(props: Array) -> void:
 		node.offset = -set.anchor
 		var c: Vector2i = p["cell"]
 		node.position = IsoProjection.to_screen(Vector2(c.x + 0.5, c.y + 0.5))
+		node.flip_h = p.get("flip", false)
+		node.scale = Vector2.ONE * float(p.get("scale", 1.0))
 		_entities.add_child(node)
 
 
-func _draw() -> void:
-	if _terrain.is_empty():
-		return
-	for y in world.grid.height:
-		for x in world.grid.width:
-			var hash_value := absi((x * 73856093) ^ (y * 19349663)) % 100
-			var set := _terrain[0]
-			if _terrain.size() > 1 and hash_value < VARIANT_PERCENT:
-				set = _terrain[1 + hash_value % (_terrain.size() - 1)]
-			var c := IsoProjection.to_screen(Vector2(x + 0.5, y + 0.5))
-			draw_texture_rect_region(set.texture, Rect2(c - set.anchor, Vector2(set.frame_size)), set.frame_rect(&"idle", 0, 0.0))
-
-
 func _add_view(e: SimEntity) -> void:
+	if e.kind == &"projectile":
+		# spawn 事件发出时弹丸的 state（武器、目标）还没写入，等第一次刷新再配置
+		var pv := ProjectileView.new()
+		_entities.add_child(pv)
+		pv.position = IsoProjection.to_screen(e.pos)
+		pv.entity = e
+		_views[e.id] = pv
+		return
 	var v := EntityView.new()
 	_entities.add_child(v)
 	v.setup(e, assets)
 	_views[e.id] = v
+
+
+func _configure_projectile(pv: ProjectileView) -> void:
+	var e := pv.entity
+	var target := world.get_entity(int(e.state.get("target_id", 0)))
+	pv.setup(e, _weapon_fx(StringName(e.state.get("weapon", ""))), assets, 14.0, _body_height(target) if target != null else 8.0, _spawn_trail)
+
+
+func _weapon_fx(weapon_id: StringName) -> Dictionary:
+	if weapon_id == &"" or not world.defs.has_def(&"weapon", weapon_id):
+		return {}
+	return world.defs.get_def(&"weapon", weapon_id).get("fx", {})
+
+
+## 枪口 / 弹着点的离地高度（像素）：建筑炮塔高，步兵低，空中单位带自身升空量。
+func _muzzle_height(e: SimEntity) -> float:
+	var v: Dictionary = e.def.get("view", {})
+	if v.has("muzzle_height"):
+		return float(v["muzzle_height"])
+	return 26.0 if e.layer == &"structure" else 14.0 + float(v.get("lift", 0.0))
+
+
+func _body_height(e: SimEntity) -> float:
+	var v: Dictionary = e.def.get("view", {})
+	return 14.0 if e.layer == &"structure" else 8.0 + float(v.get("lift", 0.0))
 
 
 func _on_spawned(p: Dictionary) -> void:
@@ -95,23 +118,28 @@ func _on_spawned(p: Dictionary) -> void:
 
 func _on_removed(p: Dictionary) -> void:
 	var e: SimEntity = p["entity"]
-	var v: EntityView = _views.get(e.id)
+	var v: Node = _views.get(e.id)
 	if v != null:
 		v.queue_free()
 		_views.erase(e.id)
 
 
-func _spawn_line_fx(kind: FxNode.Kind, from_grid: Vector2, to_grid: Vector2, ttl: float, color: Color, lift: float) -> void:
+func _spawn_trail(sprite_id: String, at_screen: Vector2, scale_mult: float) -> void:
+	_spawn_sprite_screen(sprite_id, at_screen, scale_mult, 0.0)
+
+
+func _spawn_line_fx(kind: FxNode.Kind, from_pt: Vector2, to_pt: Vector2, ttl: float, color: Color, width: float = 8.0) -> void:
 	var fx := FxNode.new()
 	fx.kind = kind
 	fx.ttl = ttl
 	fx.color = color
-	fx.from_pt = IsoProjection.to_screen(from_grid) + Vector2(0, -lift)
-	fx.to_pt = IsoProjection.to_screen(to_grid) + Vector2(0, -lift * 0.5)
+	fx.width = width
+	fx.from_pt = from_pt
+	fx.to_pt = to_pt
 	_fx.add_child(fx)
 
 
-func _spawn_sprite_fx(sprite_id: String, at_grid: Vector2, scale_mult: float = 1.0, lift: float = 0.0) -> void:
+func _spawn_sprite_screen(sprite_id: String, at_screen: Vector2, scale_mult: float = 1.0, delay: float = 0.0) -> void:
 	var sprite := assets.get_sprite(sprite_id)
 	if sprite == null:
 		return
@@ -119,22 +147,53 @@ func _spawn_sprite_fx(sprite_id: String, at_grid: Vector2, scale_mult: float = 1
 	fx.kind = FxNode.Kind.SPRITE
 	fx.sprite = sprite
 	fx.scale_mult = scale_mult
-	fx.to_pt = IsoProjection.to_screen(at_grid) + Vector2(0, -lift)
+	fx.to_pt = at_screen
+	fx.delay = delay
 	_fx.add_child(fx)
 
 
+func _spawn_sprite_fx(sprite_id: String, at_grid: Vector2, scale_mult: float = 1.0, lift: float = 0.0) -> void:
+	_spawn_sprite_screen(sprite_id, IsoProjection.to_screen(at_grid) + Vector2(0, -lift), scale_mult)
+
+
+static func _color_of(arr: Array, fallback: Color) -> Color:
+	return Color(float(arr[0]), float(arr[1]), float(arr[2])) if arr.size() >= 3 else fallback
+
+
+## 开火：枪口焰/发射烟、光束、曳光弹；瞬发武器的弹着特效按弹道时间延后出现。
 func _on_fired(p: Dictionary) -> void:
 	var src: SimEntity = p["source"]
-	var lift := 22.0 if src.layer == &"structure" else 12.0
-	match String(p["visual"]):
-		"beam":
-			_spawn_line_fx(FxNode.Kind.BEAM, p["from"], p["to"], 0.35, Color(0.4, 0.9, 1.0), lift + 14.0)
-		"tracer":
-			_spawn_line_fx(FxNode.Kind.TRACER, p["from"], p["to"], 0.12, Color(1.0, 0.9, 0.4), lift)
+	var tgt: SimEntity = p["target"]
+	var fx := _weapon_fx(p["weapon"])
+	var sv: Node = _views.get(src.id)
+	if sv is EntityView:
+		sv.notify_fired()
+	# 炮管有长度：起点沿瞄准方向（地面上）前移到炮口，而不是从车身中心射出
+	var aim: Vector2 = (p["to"] - p["from"]).normalized()
+	var from_s := IsoProjection.to_screen(p["from"] + aim * float(fx.get("muzzle_forward", 0.0))) + Vector2(0, -_muzzle_height(src))
+	var to_s := IsoProjection.to_screen(p["to"]) + Vector2(0, -_body_height(tgt))
+	var dir := (to_s - from_s).normalized()
+	if fx.has("muzzle"):
+		_spawn_sprite_screen(String(fx["muzzle"]), from_s + dir * float(fx.get("muzzle_offset", 12.0)), float(fx.get("muzzle_scale", 1.0)))
+	if fx.has("launch"):
+		_spawn_sprite_screen(String(fx["launch"]), IsoProjection.to_screen(p["from"]) + Vector2(0, -4), float(fx.get("launch_scale", 0.8)))
+	var travel := 0.0
+	if fx.has("beam"):
+		var b: Dictionary = fx["beam"]
+		_spawn_line_fx(FxNode.Kind.BEAM, from_s, to_s, float(b.get("ttl", 0.35)), _color_of(b.get("color", []), Color(0.4, 0.9, 1.0)), float(b.get("width", 8.0)))
+	elif fx.has("tracer") and p.get("instant", false):
+		var t: Dictionary = fx["tracer"]
+		travel = clampf(from_s.distance_to(to_s) / 1500.0, 0.05, 0.25)
+		_spawn_line_fx(FxNode.Kind.TRACER, from_s, to_s, travel, _color_of(t.get("color", []), Color(1.0, 0.9, 0.4)))
+	if p.get("instant", false) and fx.has("impact"):
+		_spawn_sprite_screen(String(fx["impact"]), to_s, float(fx.get("impact_scale", 1.0)), travel)
 
 
 func _on_hit(p: Dictionary) -> void:
-	if p["splash"] > 0.0:
+	var fx := _weapon_fx(p.get("weapon", &""))
+	if fx.has("impact"):
+		_spawn_sprite_fx(String(fx["impact"]), p["pos"], float(fx.get("impact_scale", 1.0)), 6.0)
+	elif p["splash"] > 0.0:
 		_spawn_sprite_fx("fx.explosion_large", p["pos"], 0.7)
 	else:
 		_spawn_sprite_fx("fx.explosion_small", p["pos"], 0.8)

@@ -23,6 +23,7 @@ var _last_log := -1
 func _initialize() -> void:
 	_shots = OS.get_cmdline_user_args().has("shots")
 	_main = load("res://src/app/main.gd").new()
+	_main.skip_menu = true
 	root.add_child(_main)
 
 
@@ -30,8 +31,9 @@ func _process(delta: float) -> bool:
 	var s: GameSession = _main._session
 	if s == null:
 		return false
-	_main._speed = 6.0
-	_t += delta * 6.0
+	var speed := 2.0 if _shots else 6.0
+	_main._speed = speed
+	_t += delta * speed
 	if _t >= _next_build:
 		_next_build = _t + 2.0
 		_try_build(s)
@@ -51,7 +53,7 @@ func _process(delta: float) -> bool:
 				sc[String(e.def_id)] = sc.get(String(e.def_id), 0) + 1
 		print(sc)
 		print("t=%d wave=%d credits=%d structs=%d yard=%d enemies=%s power=%s" % [_t, s.waves.wave_index, s.economy.get_credits(0), _count(s), yard_hp, en, s.economy.power_ratio(0)])
-	if _shots and _t > 60.0 * (_shot_i + 1):
+	if _shots and _t > 150.0 + 9.0 * _shot_i:
 		_shot_i += 1
 		root.get_viewport().get_texture().get_image().save_png("/tmp/wd_shot_%d.png" % _shot_i)
 	if s.rules.finished or _t > 1500.0:
@@ -86,7 +88,7 @@ func _try_build(s: GameSession) -> void:
 		var key := "%s%s" % [item[0], item[1]]
 		if _done.has(key):
 			continue
-		var cell: Vector2i = item[1]
+		var cell: Vector2i = (item[1] as Vector2i) + Vector2i(12, 12)
 		var reason := s.build.can_place(s.world, 0, StringName(item[0]), cell)
 		if reason == "":
 			s.world.submit({"type": "place_structure", "team": 0, "def_id": item[0], "cell": cell})

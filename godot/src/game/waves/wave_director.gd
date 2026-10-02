@@ -63,10 +63,15 @@ func _start_wave(world: SimWorld) -> void:
 func _pick_edge(world: SimWorld, edge: String) -> String:
 	if edge != "any":
 		return edge
-	return ["north", "south", "east", "west"][world.rng.randi_range_value(0, 3)]
+	var names: Array = (level.get("spawns", {}) as Dictionary).keys() if level.has("spawns") else ["north", "south", "east", "west"]
+	return names[world.rng.randi_range_value(0, names.size() - 1)]
 
 
 func _edge_point(world: SimWorld, edge: String) -> Vector2:
+	var spawns: Dictionary = level.get("spawns", {})
+	if spawns.has(edge):
+		var s: Array = spawns[edge]
+		return Vector2(float(s[0]), float(s[1])) + Vector2(world.rng.randf_range_value(-0.8, 0.8), world.rng.randf_range_value(-0.8, 0.8))
 	var w := float(world.grid.width)
 	var h := float(world.grid.height)
 	var along := world.rng.randf_range_value(3.0, w - 3.0)

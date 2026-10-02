@@ -6,6 +6,7 @@ var width: int
 var height: int
 var _terrain_blocked: PackedByteArray
 var _occupant: PackedInt32Array
+var _move_cost: PackedFloat32Array  # 地表通行代价倍率，1 = 普通（路面 < 1）
 
 
 func _init(w: int, h: int) -> void:
@@ -15,6 +16,9 @@ func _init(w: int, h: int) -> void:
 	_terrain_blocked.resize(w * h)
 	_occupant = PackedInt32Array()
 	_occupant.resize(w * h)
+	_move_cost = PackedFloat32Array()
+	_move_cost.resize(w * h)
+	_move_cost.fill(1.0)
 
 
 func in_bounds(c: Vector2i) -> bool:
@@ -39,6 +43,27 @@ func is_terrain_blocked(c: Vector2i) -> bool:
 
 func set_terrain_blocked(c: Vector2i, blocked: bool) -> void:
 	_terrain_blocked[index_of(c)] = 1 if blocked else 0
+
+
+func move_cost(c: Vector2i) -> float:
+	return _move_cost[index_of(c)]
+
+
+func set_move_cost(c: Vector2i, cost: float) -> void:
+	_move_cost[index_of(c)] = cost
+
+
+## 只读快照（写时复制，几乎无开销），供寻路等需要整体扫描的算法使用。
+func blocked_flags() -> PackedByteArray:
+	return _terrain_blocked
+
+
+func occupant_ids() -> PackedInt32Array:
+	return _occupant
+
+
+func move_costs() -> PackedFloat32Array:
+	return _move_cost
 
 
 func occupant_at(c: Vector2i) -> int:

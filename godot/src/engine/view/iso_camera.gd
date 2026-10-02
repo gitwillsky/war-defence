@@ -6,6 +6,9 @@ const PAN_SPEED := 900.0
 const EDGE := 12.0
 
 var bounds := Rect2(-2000, 0, 4000, 2000)
+var map_cells := Vector2i.ZERO  # 设置后相机被限制在"地图 + 装饰带"的菱形内，且视口不越界
+var pad_cells := 0
+const INSET := 3.0  # 离装饰带最外沿再留几格，避开最外圈
 var _dragging := false
 
 
@@ -34,7 +37,28 @@ func _process(delta: float) -> void:
 		elif m.y > size.y - EDGE:
 			dir.y += 1.0
 	position += dir.limit_length(1.0) * PAN_SPEED * delta / zoom.x
-	position = position.clamp(bounds.position, bounds.end)
+	_clamp_position()
+
+
+func _clamp_position() -> void:
+	if map_cells == Vector2i.ZERO:
+		position = position.clamp(bounds.position, bounds.end)
+		return
+	var w := float(map_cells.x + 2 * pad_cells) - 2.0 * INSET
+	var h := float(map_cells.y + 2 * pad_cells) - 2.0 * INSET
+	var center := IsoProjection.to_screen(Vector2(map_cells) * 0.5)
+	var half_w := (w + h) * 0.5 * 30.0
+	var half_h := (w + h) * 0.5 * 15.0
+	var view_half := get_viewport_rect().size / (2.0 * zoom.x)
+	var avail := 1.0 - view_half.x / half_w - view_half.y / half_h
+	if avail <= 0.0:
+		position = center
+		return
+	var off := position - center
+	var k := absf(off.x) / half_w + absf(off.y) / half_h
+	if k > avail:
+		off *= avail / k
+	position = center + off
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -51,5 +75,5 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _zoom_by(f: float) -> void:
-	var z := clampf(zoom.x * f, 0.5, 2.0)
+	var z := clampf(zoom.x * f, 0.85, 2.0)
 	zoom = Vector2(z, z)

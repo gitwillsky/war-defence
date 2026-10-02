@@ -10,7 +10,10 @@ var rules: RulesSystem
 var storm := LightningStorm.new()
 var level: Dictionary
 var superweapon_unlock_wave := 5
-var props: Array[Dictionary] = []  # 地表物件 [{sprite, cell}]，同时在网格里标为不可通行
+var props: Array[Dictionary] = []  # 地表物件 [{sprite, cell, flip?}]，其格子在地形图里已标为阻挡类别
+var terrain: TerrainMap
+var map_pad := 0  # 地图外装饰带宽度（格）
+var terrain_kinds: Dictionary = {}  # 地形类别 -> 定义
 
 
 func _init(registry: DefinitionRegistry, level_id: StringName) -> void:
@@ -40,7 +43,7 @@ func _init(registry: DefinitionRegistry, level_id: StringName) -> void:
 	world.add_system(MoverSystem.new(nav))
 	world.add_system(ProjectileSystem.new())
 	world.add_system(rules)
-	_scatter_props(level.get("decor", {}))
+	_build_terrain(registry)
 	for item: Dictionary in level.get("initial", []):
 		var c: Array = item["cell"]
 		world.spawn_structure(&"structure", StringName(item["def"]), Team.PLAYER, Vector2i(int(c[0]), int(c[1])))
@@ -64,22 +67,11 @@ func _on_wave_started(p: Dictionary) -> void:
 		storm.unlock()
 
 
-## 按关卡种子在基地以外随机放置树木：挡路，让敌军要绕行，也让地面不单调。
-func _scatter_props(decor: Dictionary) -> void:
-	var sprites: Array = decor.get("sprites", [])
-	if sprites.is_empty():
-		return
-	var center := base_center()
-	var margin := int(decor.get("edge_margin", 3))
-	var clear := float(decor.get("clear_radius", 9.0))
-	var rng := SimRng.new(int(level.get("seed", 1)) * 31 + 5)
-	var placed := 0
-	var attempts := 0
-	while placed < int(decor.get("count", 0)) and attempts < 2000:
-		attempts += 1
-		var cell := Vector2i(rng.randi_range_value(margin, world.grid.width - 1 - margin), rng.randi_range_value(margin, world.grid.height - 1 - margin))
-		if Vector2(cell).distance_to(center) < clear or world.grid.is_terrain_blocked(cell):
-			continue
-		world.grid.set_terrain_blocked(cell, true)
-		props.append({"sprite": sprites[rng.randi_range_value(0, sprites.size() - 1)], "cell": cell})
-		placed += 1
+## 按关卡 terrain 配置生成地形（山、河、路、林），逻辑属性写进网格，物件交给表现层。
+func _build_terrain(registry: DefinitionRegistry) -> void:
+	for id: StringName in registry.ids(&"terrain"):
+		terrain_kinds[id] = registry.get_def(&"terrain", id)
+	map_pad = int((level.get("terrain", {}) as Dictionary).get("pad", 0))
+	terrain = TerrainMap.new(world.grid.width, world.grid.height, &"ground")
+	props = MapBuilder.build(level.get("terrain", {}), terrain, terrain_kinds, int(level.get("seed", 1)))
+	terrain.apply_to_grid(world.grid, terrain_kinds)

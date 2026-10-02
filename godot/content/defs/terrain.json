@@ -1,0 +1,54 @@
+{
+  "kind": "terrain",
+  "defs": {
+    "ground": {
+      "sprite": "terrain.ground",
+      "minimap": [
+        0.78,
+        0.82,
+        0.86
+      ]
+    },
+    "road": {
+      "sprite": "terrain.road",
+      "cost": 0.45,
+      "no_edge": true,
+      "minimap": [
+        0.46,
+        0.46,
+        0.48
+      ]
+    },
+    "water": {
+      "sprite": "terrain.water",
+      "blocked": true,
+      "liquid": true,
+      "edge": "terrain.shore",
+      "minimap": [
+        0.12,
+        0.28,
+        0.5
+      ]
+    },
+    "mountain": {
+      "sprite": "terrain.ground",
+      "blocked": true,
+      "no_edge": true,
+      "minimap": [
+        0.36,
+        0.34,
+        0.33
+      ]
+    },
+    "forest": {
+      "sprite": "terrain.ground",
+      "blocked": true,
+      "no_edge": true,
+      "minimap": [
+        0.3,
+        0.45,
+        0.32
+      ]
+    }
+  }
+}

@@ -13,7 +13,20 @@
     "type": "instant"
    },
    "visual": "tracer",
-   "sound": "sfx.fire.pillbox"
+   "sound": "sfx.fire.pillbox",
+   "fx": {
+    "muzzle": "fx.muzzle_small",
+    "muzzle_scale": 1.1,
+    "tracer": {
+     "color": [
+      1.0,
+      0.85,
+      0.35
+     ]
+    },
+    "impact": "fx.spark",
+    "impact_scale": 0.9
+   }
   },
   "prism_shot": {
    "damage": 260,
@@ -29,7 +42,20 @@
     "splash": 0.8
    },
    "visual": "beam",
-   "sound": "sfx.fire.prism"
+   "sound": "sfx.fire.prism",
+   "fx": {
+    "beam": {
+     "color": [
+      0.45,
+      0.85,
+      1.0
+     ],
+     "width": 9,
+     "ttl": 0.4
+    },
+    "impact": "fx.spark",
+    "impact_scale": 1.8
+   }
   },
   "redeye": {
    "damage": 90,
@@ -45,7 +71,19 @@
    },
    "visual": "tracer",
    "sound": "sfx.fire.patriot",
-   "impact_sound": "sfx.explosion.small"
+   "impact_sound": "sfx.explosion.small",
+   "fx": {
+    "launch": "fx.smoke_puff",
+    "launch_scale": 0.5,
+    "projectile": "proj.patriot_missile",
+    "scale": 0.8,
+    "trail": "fx.smoke_small",
+    "trail_interval": 0.04,
+    "trail_scale": 0.6,
+    "impact": "fx.explosion_medium",
+    "impact_scale": 0.6,
+    "muzzle_forward": 0.4
+   }
   },
   "grand_cannon": {
    "damage": 205,
@@ -63,7 +101,27 @@
    },
    "visual": "arc",
    "sound": "sfx.fire.grand_cannon",
-   "impact_sound": "sfx.explosion.large"
+   "impact_sound": "sfx.explosion.large",
+   "fx": {
+    "muzzle": "fx.muzzle",
+    "muzzle_scale": 1.6,
+    "muzzle_offset": 22,
+    "launch": "fx.smoke_puff",
+    "launch_scale": 0.7,
+    "arc": 80,
+    "color": [
+     1.0,
+     0.8,
+     0.4
+    ],
+    "size": 4.5,
+    "trail": "fx.smoke_small",
+    "trail_interval": 0.05,
+    "trail_scale": 0.7,
+    "impact": "fx.explosion_large",
+    "impact_scale": 0.8,
+    "muzzle_forward": 1.4
+   }
   },
   "carbine": {
    "damage": 15,
@@ -78,7 +136,20 @@
     "type": "instant"
    },
    "visual": "tracer",
-   "sound": "sfx.fire.conscript"
+   "sound": "sfx.fire.conscript",
+   "fx": {
+    "muzzle": "fx.muzzle_small",
+    "muzzle_scale": 0.9,
+    "tracer": {
+     "color": [
+      1.0,
+      0.9,
+      0.5
+     ]
+    },
+    "impact": "fx.spark",
+    "impact_scale": 0.8
+   }
   },
   "tank_120mm": {
    "damage": 105,
@@ -95,7 +166,20 @@
    },
    "visual": "tracer",
    "sound": "sfx.fire.rhino",
-   "impact_sound": "sfx.explosion.small"
+   "impact_sound": "sfx.explosion.small",
+   "fx": {
+    "muzzle": "fx.muzzle",
+    "muzzle_scale": 1.2,
+    "color": [
+     1.0,
+     0.85,
+     0.45
+    ],
+    "size": 3.0,
+    "impact": "fx.explosion_medium",
+    "impact_scale": 0.55,
+    "muzzle_forward": 1.0
+   }
   },
   "apoc_howitzer": {
    "damage": 300,
@@ -113,7 +197,24 @@
    },
    "visual": "arc",
    "sound": "sfx.fire.apocalypse",
-   "impact_sound": "sfx.explosion.large"
+   "impact_sound": "sfx.explosion.large",
+   "fx": {
+    "muzzle": "fx.muzzle",
+    "muzzle_scale": 1.4,
+    "arc": 60,
+    "color": [
+     1.0,
+     0.75,
+     0.35
+    ],
+    "size": 4.0,
+    "trail": "fx.smoke_small",
+    "trail_interval": 0.06,
+    "trail_scale": 0.6,
+    "impact": "fx.explosion_large",
+    "impact_scale": 0.7,
+    "muzzle_forward": 1.3
+   }
   },
   "v3_rocket": {
    "damage": 200,
@@ -131,7 +232,20 @@
    },
    "visual": "arc",
    "sound": "sfx.fire.v3",
-   "impact_sound": "sfx.explosion.large"
+   "impact_sound": "sfx.explosion.large",
+   "fx": {
+    "launch": "fx.launch_v3",
+    "launch_scale": 0.7,
+    "projectile": "proj.v3_rocket",
+    "scale": 1.0,
+    "arc": 110,
+    "trail": "fx.trail_v3",
+    "trail_interval": 0.035,
+    "trail_scale": 1.0,
+    "impact": "fx.explosion_large",
+    "impact_scale": 1.0,
+    "muzzle_forward": 0.0
+   }
   },
   "blimp_bomb": {
    "damage": 130,
@@ -147,7 +261,11 @@
     "splash": 2.5
    },
    "visual": "",
-   "sound": "sfx.fire.kirov"
+   "sound": "sfx.fire.kirov",
+   "fx": {
+    "impact": "fx.explosion_large",
+    "impact_scale": 0.9
+   }
   }
  }
 }

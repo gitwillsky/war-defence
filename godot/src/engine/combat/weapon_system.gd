@@ -71,6 +71,7 @@ func _fire(world: SimWorld, e: SimEntity, target: SimEntity, weapon: Dictionary)
 	world.events.emit(&"weapon_fired", {
 		"source": e, "target": target, "weapon": StringName(e.def["weapon"]),
 		"visual": weapon.get("visual", ""), "from": e.pos, "to": target.pos,
+		"instant": proj.get("type", "instant") == "instant",
 	})
 	if proj.get("type", "instant") == "instant":
 		var splash := float(proj.get("splash", 0.0))

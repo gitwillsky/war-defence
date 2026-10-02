@@ -12,7 +12,10 @@
    "build_time": 0,
    "name": "建造厂",
    "view": {
-    "sprite": "allied.construction_yard"
+    "sprite": "allied.construction_yard",
+    "fire": {
+     "sprite": "fx.fire_2"
+    }
    },
    "icon": "",
    "objective": true,
@@ -35,7 +38,10 @@
    "build_time": 6,
    "name": "发电厂",
    "view": {
-    "sprite": "allied.power_plant"
+    "sprite": "allied.power_plant",
+    "fire": {
+     "sprite": "fx.fire_1"
+    }
    },
    "icon": "icon.allied.power_plant",
    "power": {
@@ -56,7 +62,10 @@
    "build_time": 10,
    "name": "矿石精炼厂",
    "view": {
-    "sprite": "allied.ore_refinery"
+    "sprite": "allied.ore_refinery",
+    "fire": {
+     "sprite": "fx.fire_2"
+    }
    },
    "icon": "icon.allied.ore_refinery",
    "requires": [
@@ -84,7 +93,10 @@
    "build_time": 8,
    "name": "兵营",
    "view": {
-    "sprite": "allied.barracks"
+    "sprite": "allied.barracks",
+    "fire": {
+     "sprite": "fx.fire_2"
+    }
    },
    "icon": "icon.allied.barracks",
    "requires": [
@@ -108,7 +120,10 @@
    "build_time": 12,
    "name": "战车工厂",
    "view": {
-    "sprite": "allied.war_factory"
+    "sprite": "allied.war_factory",
+    "fire": {
+     "sprite": "fx.fire_2"
+    }
    },
    "icon": "icon.allied.war_factory",
    "requires": [
@@ -133,7 +148,10 @@
    "build_time": 5,
    "name": "机枪碉堡",
    "view": {
-    "sprite": "allied.pillbox"
+    "sprite": "allied.pillbox",
+    "fire": {
+     "sprite": "fx.fire_1"
+    }
    },
    "icon": "icon.allied.pillbox",
    "weapon": "vulcan",
@@ -152,7 +170,10 @@
    "build_time": 10,
    "name": "光棱塔",
    "view": {
-    "sprite": "allied.prism_tower"
+    "sprite": "allied.prism_tower",
+    "fire": {
+     "sprite": "fx.fire_1"
+    }
    },
    "icon": "icon.allied.prism_tower",
    "requires": [
@@ -185,6 +206,9 @@
       0,
       2
      ]
+    },
+    "fire": {
+     "sprite": "fx.fire_1"
     }
    },
    "icon": "icon.allied.patriot",
@@ -218,6 +242,9 @@
       0,
       2
      ]
+    },
+    "fire": {
+     "sprite": "fx.fire_1"
     }
    },
    "icon": "icon.allied.grand_cannon",

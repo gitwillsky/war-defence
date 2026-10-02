@@ -103,5 +103,8 @@ func _build_sprite(meta: Dictionary) -> SpriteSet:
 	var an: Array = meta.get("anchor", [fs[0] / 2.0, fs[1] / 2.0])
 	s.anchor = Vector2(float(an[0]), float(an[1]))
 	s.facings = int(meta.get("facings", 1))
+	s.extra = meta.get("autotile", {})
+	s.parts = meta.get("parts", {})
+	s.additive = meta.get("blend", "") == "add"
 	s.anims = meta.get("anims", {"idle": {"start": 0, "count": 1, "fps": 1, "loop": true}})
 	return s

@@ -7,6 +7,9 @@ var frame_size := Vector2i(64, 64)
 var columns := 1
 var anchor := Vector2.ZERO  # 帧内"逻辑地面中心点"的像素坐标
 var facings := 1
+var additive := false  # 叠加发光（枪口焰、火焰）
+var extra: Dictionary = {}  # 素材包给的附加数据（如岸线自动拼接表）
+var parts: Dictionary = {}  # 附属部件精灵 id：{bib?, buildup?, overlays?: [{sprite, on?}]}
 var anims: Dictionary = {}  # 名 -> {start, count, fps, loop}
 
 
@@ -23,6 +26,16 @@ func frame_rect(anim: StringName, facing: int, t: float) -> Rect2:
 	var col := index % columns
 	var row := index / columns
 	return Rect2(Vector2(col * frame_size.x, row * frame_size.y), Vector2(frame_size))
+
+
+## 动画的第 k 帧（夹到范围内），用于按进度而不是按时间取帧。
+func frame_rect_at(anim: StringName, k: int) -> Rect2:
+	var a: Dictionary = anims.get(String(anim), anims.get("idle", {"start": 0, "count": 1}))
+	return frame_region(int(a.get("start", 0)) + clampi(k, 0, maxi(int(a.get("count", 1)) - 1, 0)))
+
+
+func anim_frames(anim: StringName) -> int:
+	return int((anims.get(String(anim), {"count": 1}) as Dictionary).get("count", 1))
 
 
 func anim_length(anim: StringName) -> float:

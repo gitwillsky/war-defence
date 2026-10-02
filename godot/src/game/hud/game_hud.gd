@@ -35,7 +35,8 @@ var _tab_buttons: Array[TextureButton] = []
 var _tab := "structure"
 var _power_bar := HudPowerBar.new()
 var _power_icon := TextureRect.new()
-var _status := Label.new()
+var _power_text := Label.new()
+var _banner := HudWaveBanner.new()
 var _hint := Label.new()
 var _fps := Label.new()
 var _storm := Button.new()
@@ -60,8 +61,7 @@ func setup(game: GameSession, assets: AssetProvider, sound_player: SoundPlayer) 
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_root)
 	_build_sidebar()
-	_build_power_bar()
-	_build_status_panel()
+	_build_banner()
 	_build_hint()
 	_build_overlay()
 	_select_tab("structure")
@@ -92,12 +92,10 @@ func refresh(delta: float) -> void:
 	var consumed: float = eco.power_consumed.get(Team.PLAYER, 0.0)
 	_power_bar.set_power(produced, consumed)
 	_power_icon.texture = _assets.get_frame_texture("ui.power", 1 if produced >= consumed else 0)
+	_power_text.text = "电力  %d / %d" % [int(produced), int(consumed)]
+	_power_text.add_theme_color_override("font_color", Color(0.75, 0.9, 0.75) if produced >= consumed else Color(1.0, 0.45, 0.4))
 	var w := session.waves
-	var enemies := _count_enemies()
-	if w.wave_index < w.total_waves():
-		_status.text = "第 %d / %d 波    %d 秒后来袭    敌军 %d" % [w.wave_index + 1, w.total_waves(), ceili(w.countdown), enemies]
-	else:
-		_status.text = "最后一波    敌军 %d" % enemies
+	_banner.push(w.wave_index, w.total_waves(), w.countdown, _count_enemies())
 	_next.disabled = w.wave_index >= w.total_waves()
 	var storm := session.storm
 	_storm.visible = storm.unlocked
@@ -136,15 +134,20 @@ func _image(id: String, frame: int, x: float, y: float, parent: Control) -> Text
 func _build_sidebar() -> void:
 	var bar := Control.new()
 	bar.mouse_filter = Control.MOUSE_FILTER_STOP
-	bar.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	bar.set_anchors_preset(Control.PRESET_RIGHT_WIDE)
 	bar.offset_left = -SIDEBAR_W * S
 	bar.offset_right = 0
-	bar.offset_top = 0
-	bar.offset_bottom = 470 * S
 	_root.add_child(bar)
+	var backing := ColorRect.new()
+	backing.color = Color(0.07, 0.075, 0.09)
+	backing.set_anchors_preset(Control.PRESET_FULL_RECT)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.add_child(backing)
 	_image("ui.radar", 0, 0, 0, bar)
 	minimap = Minimap.new()
 	minimap.world = session.world
+	minimap.terrain = session.terrain
+	minimap.kind_defs = session.terrain_kinds
 	_place(minimap, 14, 4, 140, 102, bar)
 	_image("ui.credits", 0, 0, 110, bar)
 	_credits_label.add_theme_font_size_override("font_size", 22)
@@ -227,7 +230,9 @@ func _select_tab(tab_id: String) -> void:
 
 
 func _build_buttons(bar: Control) -> void:
-	var y := 158.0 + 50.0 * SLOT_ROWS + 28.0
+	var top := 158.0 + 50.0 * SLOT_ROWS + 34.0
+	_build_power_meter(bar, top)
+	var y := top + 62.0
 	_sell_btn.texture_normal = _tex("ui.btn_sell", 0)
 	_sell_btn.texture_pressed = _tex("ui.btn_sell", 1)
 	_sell_btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -239,7 +244,7 @@ func _build_buttons(bar: Control) -> void:
 		sound.play("sfx.ui.click")
 		sell_toggled.emit())
 	_place(_sell_btn, 58, y, 52, 32, bar)
-	var row_y := y + 40.0
+	var row_y := top + 30.0
 	for spec: Array in [[_next, "下一波", 8.0, "提前呼叫下一波敌人"], [_pause_btn, "暂停", 62.0, "暂停 / 继续"], [_speed_btn, "x1", 116.0, "切换游戏速度"]]:
 		var b: Button = spec[0]
 		_style_plate(b)
@@ -261,51 +266,33 @@ func _build_buttons(bar: Control) -> void:
 	_style_plate(_storm)
 	_storm.focus_mode = Control.FOCUS_NONE
 	_storm.visible = false
-	_place(_storm, 8, row_y + 30.0, 152, 26, bar)
+	_place(_storm, 8, y + 38.0, 152, 26, bar)
 	_storm.pressed.connect(func() -> void:
 		sound.play("sfx.ui.click")
 		superweapon_pressed.emit())
 
 
-## 银色金属按钮底板：用原版选项卡的空白帧做九宫格。
 func _style_plate(b: Button) -> void:
-	for state in ["normal", "hover", "pressed", "disabled"]:
-		var sb := StyleBoxTexture.new()
-		var atlas := _tex("ui.tab_structure", 2)
-		sb.texture = atlas
-		sb.texture_margin_left = 6
-		sb.texture_margin_right = 6
-		sb.texture_margin_top = 6
-		sb.texture_margin_bottom = 6
-		sb.modulate_color = {"normal": Color.WHITE, "hover": Color(1.15, 1.1, 0.9), "pressed": Color(0.75, 0.75, 0.75), "disabled": Color(0.5, 0.5, 0.5)}[state]
-		b.add_theme_stylebox_override(state, sb)
-	b.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	b.add_theme_font_size_override("font_size", 18)
-	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
-		b.add_theme_color_override(c, Color(0.35, 0.05, 0.05))
-	b.add_theme_color_override("font_disabled_color", Color(0.3, 0.3, 0.3))
+	HudStyle.style_plate(b, _tex("ui.tab_structure", 2))
 
 
-func _build_power_bar() -> void:
-	var holder := Control.new()
-	holder.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	holder.offset_left = -(SIDEBAR_W + 22) * S
-	holder.offset_right = -SIDEBAR_W * S
-	holder.offset_top = 0
-	holder.offset_bottom = 470 * S
-	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(holder)
+## 电力：图标 + 横向段条 + 数字，放在侧边栏底部面板最上一行。
+func _build_power_meter(bar: Control, y: float) -> void:
 	_power_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_power_icon.stretch_mode = TextureRect.STRETCH_SCALE
 	_power_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_place(_power_icon, 0, 0, 22, 24, holder)
+	_place(_power_icon, 8, y, 18, 20, bar)
 	for i in 5:
 		_power_bar.pip_textures.append(_tex("ui.power_pip", i))
 	_power_bar.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_power_bar.segment_height = 4.0 * S
+	_power_bar.segment_width = 3.0 * S
 	_power_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_place(_power_bar, 3, 26, 16, 430, holder)
-	_power_bar.tooltip_text = "电力"
+	_place(_power_bar, 30, y + 2, 130, 7, bar)
+	_power_bar.tooltip_text = "电力：绿 = 已用，黄 = 富余，红 = 不足"
+	_power_text.add_theme_font_size_override("font_size", 13)
+	_power_text.add_theme_color_override("font_color", Color(0.75, 0.9, 0.75))
+	_power_text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_place(_power_text, 30, y + 9, 130, 12, bar)
 
 
 func _panel_style() -> StyleBoxFlat:
@@ -321,21 +308,23 @@ func _panel_style() -> StyleBoxFlat:
 	return sb
 
 
-func _build_status_panel() -> void:
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _panel_style())
-	panel.position = Vector2(12, 10)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 22)
-	panel.add_child(row)
-	_status.add_theme_font_size_override("font_size", 22)
-	_status.add_theme_color_override("font_color", GOLD)
-	row.add_child(_status)
-	_fps.add_theme_font_size_override("font_size", 18)
-	_fps.add_theme_color_override("font_color", Color(0.6, 0.9, 0.6))
-	row.add_child(_fps)
-	_root.add_child(panel)
+func _build_banner() -> void:
+	_banner.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_banner.offset_left = -300.0 - SIDEBAR_W * S * 0.5
+	_banner.offset_right = 300.0 - SIDEBAR_W * S * 0.5
+	_banner.offset_top = 10.0
+	_banner.offset_bottom = 94.0
+	_root.add_child(_banner)
+	_fps.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_fps.offset_left = 12.0
+	_fps.offset_top = -30.0
+	_fps.offset_bottom = -6.0
+	_fps.add_theme_font_size_override("font_size", 15)
+	_fps.add_theme_color_override("font_color", Color(0.75, 0.9, 0.75, 0.75))
+	_fps.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	_fps.add_theme_constant_override("outline_size", 4)
+	_fps.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(_fps)
 
 
 func _build_hint() -> void:

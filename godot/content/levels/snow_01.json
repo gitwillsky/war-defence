@@ -4,8 +4,8 @@
   "snow_01": {
    "name": "雪原防线",
    "map": [
-    40,
-    40
+    64,
+    64
    ],
    "start_credits": 9000,
    "seed": 7,
@@ -13,23 +13,23 @@
     {
      "def": "construction_yard",
      "cell": [
-      18,
-      18
+      30,
+      30
      ]
     },
     {
      "def": "power_plant",
      "cell": [
-      23,
-      18
+      35,
+      30
      ],
      "instant": true
     },
     {
      "def": "ore_refinery",
      "cell": [
-      14,
-      22
+      26,
+      34
      ],
      "instant": true
     }
@@ -228,20 +228,203 @@
     "unlock_wave": 5,
     "charge": 120
    },
-   "decor": {
-    "count": 90,
-    "sprites": [
-     "prop.tree_1",
-     "prop.tree_2",
-     "prop.tree_3",
-     "prop.tree_4",
-     "prop.tree_5",
-     "prop.tree_6",
-     "prop.tree_7",
-     "prop.tree_8"
+   "spawns": {
+    "north": [
+     32,
+     2.5
     ],
-    "clear_radius": 9,
-    "edge_margin": 3
+    "east": [
+     61.5,
+     32
+    ],
+    "south": [
+     32,
+     61.5
+    ],
+    "west": [
+     2.5,
+     32
+    ]
+   },
+   "terrain": {
+    "layers": [
+     {
+      "kind": "mountain",
+      "shape": "outside",
+      "radius": 29,
+      "wobble": [
+       [
+        3,
+        2.0
+       ],
+       [
+        5,
+        1.5
+       ],
+       [
+        9,
+        0.8
+       ]
+      ],
+      "border": 2.5
+     },
+     {
+      "kind": "water",
+      "shape": "ring",
+      "radius": 19,
+      "width": 3.4,
+      "wobble": [
+       [
+        2,
+        1.4
+       ],
+       [
+        4,
+        0.9
+       ],
+       [
+        7,
+        0.5
+       ]
+      ]
+     },
+     {
+      "kind": "road",
+      "shape": "ring",
+      "radius": 12,
+      "width": 1.6,
+      "wobble": [
+       [
+        3,
+        0.6
+       ]
+      ]
+     },
+     {
+      "kind": "road",
+      "shape": "polyline",
+      "points": [
+       [
+        32,
+        0
+       ],
+       [
+        32,
+        22
+       ]
+      ],
+      "width": 3
+     },
+     {
+      "kind": "road",
+      "shape": "polyline",
+      "points": [
+       [
+        64,
+        32
+       ],
+       [
+        42,
+        32
+       ]
+      ],
+      "width": 3
+     },
+     {
+      "kind": "road",
+      "shape": "polyline",
+      "points": [
+       [
+        32,
+        64
+       ],
+       [
+        32,
+        42
+       ]
+      ],
+      "width": 3
+     },
+     {
+      "kind": "road",
+      "shape": "polyline",
+      "points": [
+       [
+        0,
+        32
+       ],
+       [
+        22,
+        32
+       ]
+      ],
+      "width": 3
+     }
+    ],
+    "rocks": [
+     "prop.rock_wall_1",
+     "prop.rock_wall_2",
+     "prop.rock_wall_3"
+    ],
+    "forests": [
+     {
+      "shape": "ring",
+      "radius": 15.5,
+      "width": 3.4,
+      "wobble": [
+       [
+        2,
+        1.0
+       ]
+      ],
+      "density": 0.55,
+      "keep_clear": 9,
+      "sprites": [
+       "prop.tree_1",
+       "prop.tree_2",
+       "prop.tree_3",
+       "prop.tree_4",
+       "prop.tree_5",
+       "prop.tree_6",
+       "prop.tree_7",
+       "prop.tree_8"
+      ]
+     },
+     {
+      "shape": "ring",
+      "radius": 24,
+      "width": 5,
+      "wobble": [
+       [
+        3,
+        1.2
+       ],
+       [
+        6,
+        0.8
+       ]
+      ],
+      "density": 0.35,
+      "keep_clear": 9,
+      "sprites": [
+       "prop.tree_1",
+       "prop.tree_2",
+       "prop.tree_3",
+       "prop.tree_4",
+       "prop.tree_5",
+       "prop.tree_6",
+       "prop.tree_7",
+       "prop.tree_8"
+      ]
+     }
+    ],
+    "bumps": [
+     "prop.rock_bump_1",
+     "prop.rock_bump_2",
+     "prop.rock_bump_3",
+     "prop.rock_bump_4"
+    ],
+    "pad": 24
    }
   }
  }

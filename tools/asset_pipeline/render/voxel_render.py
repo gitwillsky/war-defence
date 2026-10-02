@@ -45,16 +45,20 @@ class _Cloud:
 
 def _limb_normals(limb) -> np.ndarray:
     sx, sy, sz = limb.size
-    occ = np.zeros((sx + 2, sy + 2, sz + 2), dtype=np.float32)
+    occ = np.zeros((sx + 6, sy + 6, sz + 6), dtype=np.float32)
     v = limb.voxels
-    occ[v[:, 0] + 1, v[:, 1] + 1, v[:, 2] + 1] = 1.0
-    sm = np.zeros_like(occ)
-    for dx in (-1, 0, 1):
-        for dy in (-1, 0, 1):
-            for dz in (-1, 0, 1):
-                sm += np.roll(occ, (dx, dy, dz), axis=(0, 1, 2))
-    gx, gy, gz = np.gradient(sm / 27.0)
-    n = -np.stack([gx, gy, gz], axis=-1)[v[:, 0] + 1, v[:, 1] + 1, v[:, 2] + 1]
+    occ[v[:, 0] + 3, v[:, 1] + 3, v[:, 2] + 3] = 1.0
+    # 车体是表层壳体，单次 3x3x3 平滑的梯度很噪（顶面出现网状斑点），连做三遍得到平滑的曲面法线
+    sm = occ
+    for _ in range(3):
+        acc = np.zeros_like(sm)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for dz in (-1, 0, 1):
+                    acc += np.roll(sm, (dx, dy, dz), axis=(0, 1, 2))
+        sm = acc / 27.0
+    gx, gy, gz = np.gradient(sm)
+    n = -np.stack([gx, gy, gz], axis=-1)[v[:, 0] + 3, v[:, 1] + 3, v[:, 2] + 3]
     length = np.linalg.norm(n, axis=1, keepdims=True)
     n = np.where(length > 1e-4, n / np.maximum(length, 1e-4), np.array([0.0, 0.0, 1.0]))
     return n
@@ -124,7 +128,7 @@ def _render_one(cloud: _Cloud, pal: np.ndarray, heading: float, width: int, heig
     scr = _project(world)
     # 深度：越靠近镜头（south、向上）越大
     depth = -world[:, 0] * math.cos(math.radians(30)) + world[:, 2] * math.sin(math.radians(30))
-    shade = 0.55 + 0.6 * np.clip(nrm @ LIGHT, 0.0, 1.0)
+    shade = 0.7 + 0.5 * np.clip(nrm @ LIGHT, 0.0, 1.0)
     rgb = np.clip(pal[cloud.color].astype(np.float32) * shade[:, None], 0, 255)
     order = np.argsort(depth)
     px = np.round((scr[order, 0] + anchor[0]) * SS).astype(np.int32)

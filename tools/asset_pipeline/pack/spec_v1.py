@@ -20,6 +20,8 @@ BUILDINGS = [
     ("allied.patriot", "nasam", 1, 1),
     ("allied.grand_cannon", "gagcan", 2, 2),
 ]
+# 建筑在 artmd.ini 里的节名与 shp 名不同时的映射（部件定义在该节）
+ART_NAMES = {"gagcan": "gtgcan"}
 
 # id, 队伍, [(体素文件名, 肢体下标或 None)]
 VOXELS = [
@@ -30,6 +32,8 @@ VOXELS = [
     ("soviet.apocalypse", "soviet", [("mtnk", None), ("mtnktur", None)]),
     ("soviet.v3", "soviet", [("v3", None)]),
     ("soviet.kirov", "soviet", [("zep", [0])]),
+    ("proj.v3_rocket", "soviet", [("v3rocket", None)]),
+    ("proj.patriot_missile", "allied", [("dmisl", None)]),
 ]
 VOXEL_FACINGS = 16
 
@@ -47,10 +51,24 @@ INFANTRY = [
 ]
 
 # id, shp, 调色板, fps
+# id, shp 名, 调色板, 帧率, 混合方式（"add" = 叠加发光；省略 = 普通）, 锚点纵向比例（省略 = 居中）
 EFFECTS = [
     ("fx.explosion_large", "explolrg", "anim.pal", 20),
+    ("fx.explosion_medium", "explomed", "anim.pal", 20),
     ("fx.explosion_small", "piffpiff", "anim.pal", 20),
     ("fx.lightning_strike", "twlt026", "anim.pal", 14),
+    ("fx.bang_small", "s_bang16", "anim.pal", 22),
+    ("fx.muzzle", "gunfire", "anim.pal", 30, "add"),
+    ("fx.muzzle_small", "gunfire9", "anim.pal", 40, "add"),
+    ("fx.spark", "piff", "anim.pal", 24, "add"),
+    ("fx.smoke", "smokey", "anim.pal", 14),
+    ("fx.smoke_small", "smokey2", "anim.pal", 16),
+    ("fx.smoke_puff", "smkpuff", "anim.pal", 18),
+    ("fx.trail_v3", "v3trail", "anim.pal", 24),
+    ("fx.launch_v3", "v3takoff", "anim.pal", 20),
+    ("fx.fire_1", "fire01", "anim.pal", 18, "add", 0.9),
+    ("fx.fire_2", "fire02", "anim.pal", 18, "add", 0.9),
+    ("fx.fire_3", "fire03", "anim.pal", 18, "add", 0.9),
 ]
 
 # 建造栏图标：sprite id -> cameo shp
@@ -65,14 +83,22 @@ ICONS = {
     "icon.allied.grand_cannon": "gcanicon",
 }
 
-# 地面：id, 图块文件, 模板内第几块。第 0 个是主地面，其余是少量点缀变体
-TERRAIN = [
-    ("terrain.ground", "clear01.sno", 0), ("terrain.ground_1", "rough01.sno", 0), ("terrain.ground_2", "rough01.sno", 1),
-    ("terrain.ground_3", "rough02.sno", 0), ("terrain.ground_4", "rough03.sno", 0), ("terrain.ground_5", "rough04.sno", 0),
-]
+# 地面：主地面 clear01；路面用 pave01-04；水用 water01-06 的全部图块
+GROUND = ("terrain.ground", "clear01.sno", 0)
+ROAD_FILES = ["pave01.sno", "pave02.sno", "pave03.sno", "pave04.sno"]
+WATER_FILES = [f"water{i:02d}.sno" for i in range(1, 7)]
+# 岸线图块：按 8 邻格水/陆组合自动挑最贴合的一块（见 pack/terrain.py）
+SHORE_FILES = [f"shore{i:02d}.sno" for i in range(1, 41)]
 
 # 地表物件（树）：id, shp 名；用 TERRAIN_PAL
 PROPS = [(f"prop.tree_{i + 1}", name) for i, name in enumerate(["tree02", "tree03", "tree05", "tree06", "tree08", "tree12", "tree17", "tree20"])]
+
+# 山体：悬崖图块里的岩壁柱与碎石包（单格模板），id, 图块文件
+ROCKS = [
+    ("prop.rock_wall_1", "cliff12.sno"), ("prop.rock_wall_2", "cliff13.sno"), ("prop.rock_wall_3", "cliff14.sno"),
+    ("prop.rock_bump_1", "cliff26.sno"), ("prop.rock_bump_2", "cliff29.sno"),
+    ("prop.rock_bump_3", "cliff30.sno"), ("prop.rock_bump_4", "cliff38.sno"),
+]
 
 # 界面素材（sidebar.pal）：id, shp 名, 取哪些帧（None = 全部）
 UI_PAL = "sidebar.pal"
