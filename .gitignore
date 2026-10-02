@@ -1,0 +1,24 @@
+# 原始素材（版权素材，不入库、不分发）
+/尤里科技时代4.0完结版/
+/raw/
+
+# 素材管线产物与外部工具
+/build/
+/third_party/
+/godot/packs/
+
+# Godot
+/godot/.godot/
+/godot/.import/
+/godot/export_presets.cfg
+*.translation
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# 系统 / 编辑器
+.DS_Store
+.idea/
+.vscode/
