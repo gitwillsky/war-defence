@@ -31,6 +31,7 @@ class VxlLimb:
     max_bounds: np.ndarray
     size: tuple[int, int, int]
     voxels: np.ndarray  # N×5：x y z color normal
+    normal_type: int = 4  # 2 = TS 法线表，4 = RA2 法线表
 
 
 @dataclass
@@ -64,9 +65,9 @@ def parse_vxl(data: bytes) -> Vxl:
         mat = np.array(struct.unpack_from("<12f", data, t + 16), dtype=np.float64).reshape(3, 4)
         mn = np.array(struct.unpack_from("<3f", data, t + 64), dtype=np.float64)
         mx = np.array(struct.unpack_from("<3f", data, t + 76), dtype=np.float64)
-        sx, sy, sz, _normal_type = struct.unpack_from("<4B", data, t + 88)
+        sx, sy, sz, normal_type = struct.unpack_from("<4B", data, t + 88)
         vox = _read_voxels(data, body_start, span_start, span_end, span_data, sx, sy, sz)
-        vxl.limbs.append(VxlLimb(name, scale, mat, mn, mx, (sx, sy, sz), vox))
+        vxl.limbs.append(VxlLimb(name, scale, mat, mn, mx, (sx, sy, sz), vox, normal_type))
     return vxl
 
 

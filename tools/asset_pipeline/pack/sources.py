@@ -10,7 +10,7 @@ from ..formats.shp_ts import Shp, parse_shp_ts
 from ..formats.tmp_ts import parse_tmp_ts
 from ..formats.vxl import parse_hva, parse_vxl
 from ..mix.vfs import MixVfs
-from ..render.voxel_render import _Cloud, build_cloud, render_facings, team_palette
+from ..render.voxel_render import _Cloud, build_cloud, parse_vpl, render_facings, team_palette
 
 SHADOW_ALPHA = 90
 
@@ -81,7 +81,8 @@ class Sources:
 
     def voxel_facings(self, parts, facings: int, team: str, pal_name: str = "unitsno.pal"):
         pal = np.array(self.palette(pal_name, team), dtype=np.uint8)
-        return render_facings(self.voxel_cloud(parts), pal, facings)
+        vpl_data = self.vfs.read("voxels.vpl")
+        return render_facings(self.voxel_cloud(parts), pal, facings, parse_vpl(vpl_data) if vpl_data else None)
 
     def icon(self, name: str) -> Image.Image:
         shp = self.shp(name)

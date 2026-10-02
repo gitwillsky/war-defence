@@ -11,6 +11,9 @@ help: ## 列出所有命令
 setup: ## 创建 .venv 并安装工具依赖
 	python3 -m venv .venv
 	.venv/bin/pip install -q -r tools/requirements.txt
+	@# RA2 体素法线表（OpenRA，GPL）：只下载到 third_party/ 供管线读取，不入库
+	mkdir -p third_party/openra
+	curl -sfL -o third_party/openra/VoxelNormalsPalette.cs https://raw.githubusercontent.com/OpenRA/OpenRA/bleed/OpenRA.Mods.Cnc/Traits/World/VoxelNormalsPalette.cs || echo "法线表下载失败，体素将用近似法线"
 
 mix-list: ## 列出原始素材目录中所有 MIX 归档
 	$(PY) tools/asset_pipeline/cli.py mix-list
