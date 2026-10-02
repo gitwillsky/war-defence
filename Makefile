@@ -3,7 +3,7 @@
 GODOT ?= /Applications/Godot.app/Contents/MacOS/Godot
 PY    ?= .venv/bin/python
 
-.PHONY: help setup run editor check format import-assets mix-list
+.PHONY: help setup shp-export run editor check format import-assets mix-list
 
 help: ## 列出所有命令
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -14,6 +14,9 @@ setup: ## 创建 .venv 并安装工具依赖
 
 mix-list: ## 列出原始素材目录中所有 MIX 归档
 	$(PY) tools/asset_pipeline/cli.py mix-list
+
+shp-export: ## 导出 SHP 为 PNG：make shp-export NAME=gapris.shp
+	$(PY) tools/asset_pipeline/cli.py shp-export $(NAME)
 
 run: ## 运行游戏
 	$(GODOT) --path godot
@@ -27,6 +30,6 @@ check: ## 静态规则检查（行数上限、分层依赖）
 format: ## 格式化 GDScript（需要 pip install gdtoolkit）
 	gdformat godot/src
 
-import-assets: ## 运行素材管线（M0 实现后可用）
+import-assets: ## 运行素材管线（需要 ffmpeg）
 	@test -f tools/asset_pipeline/cli.py || { echo "素材管线尚未实现，见 docs/design/asset-pipeline.md"; exit 1; }
 	$(PY) tools/asset_pipeline/cli.py all

@@ -1,0 +1,91 @@
+{
+ "kind": "unit",
+ "defs": {
+  "conscript": {
+   "name": "动员兵",
+   "cost": 100,
+   "hp": 100,
+   "armor": "flak",
+   "layer": "ground",
+   "mover": {
+    "speed": 1.1,
+    "stop_to_fire": true
+   },
+   "view": {
+    "sprite": "soviet.conscript"
+   },
+   "weapon": "carbine",
+   "threat": 1,
+   "death_sound": "sfx.die.infantry"
+  },
+  "rhino": {
+   "name": "犀牛坦克",
+   "cost": 900,
+   "hp": 450,
+   "armor": "heavy",
+   "layer": "ground",
+   "mover": {
+    "speed": 1.1,
+    "stop_to_fire": true
+   },
+   "view": {
+    "sprite": "soviet.rhino"
+   },
+   "weapon": "tank_120mm",
+   "threat": 2,
+   "death_sound": "sfx.explosion.large"
+  },
+  "apocalypse": {
+   "name": "天启坦克",
+   "cost": 1750,
+   "hp": 1200,
+   "armor": "heavy",
+   "layer": "ground",
+   "mover": {
+    "speed": 1.0,
+    "stop_to_fire": true
+   },
+   "view": {
+    "sprite": "soviet.apocalypse"
+   },
+   "weapon": "apoc_howitzer",
+   "threat": 3,
+   "death_sound": "sfx.explosion.large"
+  },
+  "v3": {
+   "name": "V3 火箭",
+   "cost": 1000,
+   "hp": 500,
+   "armor": "light",
+   "layer": "ground",
+   "mover": {
+    "speed": 0.8,
+    "stop_to_fire": true
+   },
+   "view": {
+    "sprite": "soviet.v3"
+   },
+   "weapon": "v3_rocket",
+   "threat": 2,
+   "death_sound": "sfx.explosion.large"
+  },
+  "kirov": {
+   "name": "基洛夫飞艇",
+   "cost": 2000,
+   "hp": 3000,
+   "armor": "medium",
+   "layer": "air",
+   "mover": {
+    "speed": 0.9,
+    "stop_to_fire": false
+   },
+   "view": {
+    "sprite": "soviet.kirov",
+    "lift": 70
+   },
+   "weapon": "blimp_bomb",
+   "threat": 3,
+   "death_sound": "sfx.explosion.large"
+  }
+ }
+}

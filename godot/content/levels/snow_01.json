@@ -1,0 +1,248 @@
+{
+ "kind": "level",
+ "defs": {
+  "snow_01": {
+   "name": "雪原防线",
+   "map": [
+    40,
+    40
+   ],
+   "start_credits": 9000,
+   "seed": 7,
+   "initial": [
+    {
+     "def": "construction_yard",
+     "cell": [
+      18,
+      18
+     ]
+    },
+    {
+     "def": "power_plant",
+     "cell": [
+      23,
+      18
+     ],
+     "instant": true
+    },
+    {
+     "def": "ore_refinery",
+     "cell": [
+      14,
+      22
+     ],
+     "instant": true
+    }
+   ],
+   "first_wave_delay": 90,
+   "wave_interval": 55,
+   "waves": [
+    [
+     {
+      "unit": "conscript",
+      "count": 4,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "conscript",
+      "count": 7,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "conscript",
+      "count": 7,
+      "edge": "north",
+      "gap": 1.2
+     },
+     {
+      "unit": "rhino",
+      "count": 1,
+      "edge": "east",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "conscript",
+      "count": 4,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "rhino",
+      "count": 2,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "conscript",
+      "count": 7,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "rhino",
+      "count": 3,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "kirov",
+      "count": 1,
+      "edge": "north",
+      "gap": 4
+     },
+     {
+      "unit": "conscript",
+      "count": 7,
+      "edge": "south",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "rhino",
+      "count": 6,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "v3",
+      "count": 1,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "conscript",
+      "count": 13,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "rhino",
+      "count": 6,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "v3",
+      "count": 2,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "kirov",
+      "count": 1,
+      "edge": "east",
+      "gap": 4
+     },
+     {
+      "unit": "rhino",
+      "count": 5,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "v3",
+      "count": 2,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "apocalypse",
+      "count": 1,
+      "edge": "any",
+      "gap": 5
+     },
+     {
+      "unit": "rhino",
+      "count": 6,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "kirov",
+      "count": 2,
+      "edge": "west",
+      "gap": 4
+     },
+     {
+      "unit": "apocalypse",
+      "count": 2,
+      "edge": "any",
+      "gap": 5
+     },
+     {
+      "unit": "rhino",
+      "count": 6,
+      "edge": "any",
+      "gap": 1.2
+     },
+     {
+      "unit": "v3",
+      "count": 3,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ],
+    [
+     {
+      "unit": "apocalypse",
+      "count": 4,
+      "edge": "any",
+      "gap": 4
+     },
+     {
+      "unit": "kirov",
+      "count": 2,
+      "edge": "north",
+      "gap": 4
+     },
+     {
+      "unit": "conscript",
+      "count": 10,
+      "edge": "any",
+      "gap": 1.2
+     }
+    ]
+   ],
+   "superweapon": {
+    "unlock_wave": 5,
+    "charge": 120
+   },
+   "decor": {
+    "count": 90,
+    "sprites": [
+     "prop.tree_1",
+     "prop.tree_2",
+     "prop.tree_3",
+     "prop.tree_4",
+     "prop.tree_5",
+     "prop.tree_6",
+     "prop.tree_7",
+     "prop.tree_8"
+    ],
+    "clear_radius": 9,
+    "edge_margin": 3
+   }
+  }
+ }
+}

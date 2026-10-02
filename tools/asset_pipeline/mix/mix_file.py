@@ -11,6 +11,7 @@ from __future__ import annotations
 import struct
 from dataclasses import dataclass
 from pathlib import Path
+from typing import BinaryIO
 
 from . import header_crypto
 from .name_hash import hash_classic, hash_crc32
@@ -33,10 +34,31 @@ class NotMixError(ValueError):
 _SEVEN_ZIP_MAGIC = b"7z\xbc\xaf\x27\x1c"
 
 
+class SliceReader:
+    """把父文件的一段字节区间当作独立文件读取（用于嵌套 MIX，免于整段读入内存）。"""
+
+    def __init__(self, f: BinaryIO, start: int, length: int):
+        self._f, self._start, self._length, self._pos = f, start, length, 0
+
+    def seek(self, pos: int) -> None:
+        self._pos = pos
+
+    def read(self, n: int) -> bytes:
+        n = max(0, min(n, self._length - self._pos))
+        self._f.seek(self._start + self._pos)
+        data = self._f.read(n)
+        self._pos += len(data)
+        return data
+
+    def close(self) -> None:  # 父文件由父持有
+        pass
+
+
 class MixFile:
-    def __init__(self, path: Path):
-        self.path = Path(path)
-        self._f = self.path.open("rb")
+    def __init__(self, source: Path | SliceReader, name: str | None = None):
+        self.path = Path(source) if isinstance(source, (str, Path)) else None
+        self.name = name or (self.path.name if self.path else "?")
+        self._f = self.path.open("rb") if self.path else source
         self.encrypted = False
         self.is_old_format = False
         self.entries: list[MixEntry] = []
@@ -53,6 +75,7 @@ class MixFile:
         self.close()
 
     def _parse(self) -> None:
+        self._f.seek(0)
         head = self._f.read(4)
         if head + self._f.read(2) == _SEVEN_ZIP_MAGIC:
             raise NotMixError("7z archive (mod-protected, not a MIX)")
@@ -93,6 +116,9 @@ class MixFile:
     def read(self, entry: MixEntry) -> bytes:
         self._f.seek(entry.offset)
         return self._f.read(entry.length)
+
+    def open_nested(self, entry: MixEntry, name: str) -> "MixFile":
+        return MixFile(SliceReader(self._f, entry.offset, entry.length), name)
 
     def find(self, name: str) -> MixEntry | None:
         """按文件名查找；两种哈希都试，因为新旧格式都可能出现。"""

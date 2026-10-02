@@ -158,4 +158,83 @@ tools/asset_pipeline/
 - 文件名需要靠"本地文件名库 + 已知名字表"反查哈希；`multimd`、`Expandmd02/03` 等无库的归档，后续从 `rulesmd.ini` / `artmd.ini` 里的 `Image=` 等字段生成候选名。
 - 被密码保护的 7z 包里大概率是 mod 新增内容。这印证了 **D4**：第一版只用原版盟军单位。
 
-剩余 M0 项：#2 `rulesmd.ini` → JSON；#3 SHP 解码 + 调色板；#4 VXL 方向渲染；#5 音频；#6 manifest 与 Godot 加载。
+**第 3 项已通过**（SHP 解码 + 调色板，`make shp-export` 可复现）。以光棱塔 `gapris.shp`（6 帧，画布 172×160）验证，结论：
+
+- **建筑、单位、步兵的 SHP 都用 `unit*.pal`（如 `unittem.pal`）**；`iso*.pal` 是地形图块用的。用 iso 调色板渲染会得到彩虹噪点。
+- 队伍色确认在调色板索引 **16–31**（`unittem.pal` 里是红色渐变），可以据此生成队伍色蒙版。
+- 调色板在 `cache.mix`（原版）/`cachemd.mix`（YR）里；`rulesmd.ini`、`artmd.ini` 在 `localmd.mix`，但目录下有 mod 的**散文件覆盖版**，VFS 优先读散文件，与游戏一致。
+- 6 帧里的语义（正常/受损/炮击动画/阴影）待核对 `artmd.ini` 的 `[GAPRIS]` 段。
+
+剩余 M0 项：#2 `rulesmd.ini` → JSON；#4 VXL 方向渲染；#5 音频；#6 manifest 与 Godot 加载。
+
+## 9. v1 素材包契约（定稿，引擎与管线共同遵守）
+
+本节**取代 §5 中与之冲突的细节**。包目录：`godot/packs/ra2-ta4/`，入口 `manifest.json`。
+
+### 9.1 精灵 `sprites.<id>`
+
+```json
+"allied.prism_tower": {
+  "atlas": "sprites/allied.prism_tower.png",
+  "frame_size": [172, 160],
+  "columns": 8,
+  "anchor": [86, 100],
+  "facings": 1,
+  "anims": {
+    "idle": {"start": 0, "count": 1, "fps": 1, "loop": true}
+  }
+}
+```
+
+- 图集是**网格**：每格 `frame_size`，每行 `columns` 格，行优先编号。
+- **帧索引**：多方向（`facings` = F > 1）时，动画 `a` 的第 `k` 帧、方向 `f` 的格号 = `a.start + f * a.count + k`；单方向时 = `a.start + k`。
+- **方向编号**：`f = 0` 朝屏幕**正上方（北）**，顺时针递增；F 为 8 或 16 或 32。
+- `anchor` = 帧内"逻辑地面中心点"的像素坐标：单位的脚下中心 / 建筑占地的菱形中心。引擎把它对准对象的逻辑位置。
+- **阴影**不烘进图（透明）；如有，另给 `"shadow_atlas"`（同布局，黑色半透明）。v1 可省略。
+- **队伍色**按阵营**烘焙进图**（盟军蓝、苏军红，用调色板 16–31 段重映射），v1 不做运行时着色。
+- 标准动画名：`idle`、`move`、`fire`、`die`；缺的就不给，引擎降级为 `idle`。建筑可有 `damaged`。
+- 特效（爆炸等）：`facings: 1`，动画名 `play`，`loop: false`。
+
+### 9.2 声音 `sounds.<id>`：`{"file": "audio/xxx.ogg", "volume_db": 0}`；v1 可缺，引擎静默降级。
+
+### 9.3 图标 `sprites.icon.<id>`：建造栏图标，单帧；缺则引擎用文字代替。
+
+### 9.4 v1 必需 ID 清单
+
+| ID | 内容 | 备注 |
+|----|------|------|
+| `allied.construction_yard` `allied.power_plant` `allied.ore_refinery` `allied.barracks` `allied.war_factory` | 盟军基地建筑 | SHP，建筑用 `unittem.pal` |
+| `allied.pillbox` `allied.prism_tower` `allied.patriot` `allied.grand_cannon` | 防御塔 | SHP；缺炮塔转动帧则单方向 |
+| `allied.ore_miner` | 采矿车 | VXL，8 方向以上 |
+| `soviet.conscript` | 动员兵 | 步兵 SHP，`idle` + `move`，8 方向 |
+| `soviet.rhino` `soviet.apocalypse` `soviet.v3` | 犀牛、天启、V3 | VXL（含炮塔合成），16 方向以上 |
+| `soviet.kirov` | 基洛夫飞艇 | VXL |
+| `fx.explosion_small` `fx.explosion_large` | 爆炸 | anim SHP，`anim.pal` |
+| `terrain.grass` | 草地菱形图块（可多变体 `terrain.grass_2`…） | 可选；缺则引擎程序化绘制 |
+
+### 9.5 `manifest.json` 顶层
+
+```json
+{
+  "pack_id": "ra2-ta4", "format_version": 1,
+  "iso_tile": {"w": 60, "h": 30},
+  "sprites": { "<id>": { ... } },
+  "sounds": { "<id>": { ... } }
+}
+```
+
+### 9.6 数据草稿（不属于素材包）
+
+管线另输出 `godot/content/defs/_generated/rules_draft.json`：上述对象在 `rulesmd.ini` 里的原始数值（造价、血量、护甲、速度、武器伤害/射程/射速、弹头对护甲倍率、耗电/供电、占地 Foundation 等）及其内部名称，供**人工**写入 `content/defs/`。游戏运行时不读它。
+
+## 10. v1 实现补充（以此为准）
+
+- **主题**：雪地（snow）。建筑用 `unitsno.pal`，地形用 `isosno.pal`，界面用 `sidebar.pal`，图标用 `cameo.pal`，特效用 `anim.pal`。
+- **队伍色**：建筑与盟军单位把调色板 16–31 红色段交换 R/B 成蓝色；苏军保持红色。
+- **建筑锚点**：`anchor.x = 画布宽/2`，`anchor.y = 第0帧底边 − (占地宽+占地高) × 7.5`；帧 0 正常、帧 1 受损、帧 3–5 为对应阴影（合成为半透明黑垫在下面）。
+- **炮塔**：`allied.grand_cannon.turret` / `allied.patriot.turret` 是单独的 16 方向体素精灵，实体定义 `view.turret = {sprite, offset}` 叠加绘制。
+- **步兵**：SHP 方向序为西北起逆时针，管线重排成引擎序（北起顺时针）；每个动画按"方向×帧"展开，所以不需要 `step` 字段（`die` 也复制到每个方向）。阴影色索引 12 画成半透明黑。
+- **地面与物件**：`terrain.ground`（+ `terrain.ground_1..N` 点缀变体）、`prop.tree_N`（锚点取树干底部）。
+- **界面**：`ui.*` 是原版侧边栏部件（`side_slot`、`radar`、`tabs`、`tab_*`、`power`、`power_pip`、`btn_sell`、`credits`…），引擎用 `AssetProvider.get_frame_texture(id, 帧号)` 取单帧。
+- **声音**：`audio.idx`/`audio.bag` 条目（IMA ADPCM，由 ffmpeg 解码）转 OGG；`sounds.<id> = {files: [...变体], volume_db, music?}`。音乐取自归档里的 `power.wav`、`intro.wav`。声音 id 到原版条目名的对应见 `spec_v1.SOUNDS`，名称来自 `soundmd.ini`。
+- 命令：`make import-assets`（需要 ffmpeg）。

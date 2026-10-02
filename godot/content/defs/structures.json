@@ -1,0 +1,237 @@
+{
+ "kind": "structure",
+ "defs": {
+  "construction_yard": {
+   "cost": 5000,
+   "hp": 20000,
+   "armor": "steel",
+   "size": [
+    4,
+    4
+   ],
+   "build_time": 0,
+   "name": "建造厂",
+   "view": {
+    "sprite": "allied.construction_yard"
+   },
+   "icon": "",
+   "objective": true,
+   "buildable": false,
+   "unsellable": true,
+   "power": {
+    "produce": 0,
+    "consume": 0
+   },
+   "death_sound": "sfx.die.building"
+  },
+  "power_plant": {
+   "cost": 800,
+   "hp": 1400,
+   "armor": "wood",
+   "size": [
+    2,
+    2
+   ],
+   "build_time": 6,
+   "name": "发电厂",
+   "view": {
+    "sprite": "allied.power_plant"
+   },
+   "icon": "icon.allied.power_plant",
+   "power": {
+    "produce": 500,
+    "consume": 0
+   },
+   "tab": "structure",
+   "death_sound": "sfx.die.power_plant"
+  },
+  "ore_refinery": {
+   "cost": 2000,
+   "hp": 2000,
+   "armor": "wood",
+   "size": [
+    4,
+    3
+   ],
+   "build_time": 10,
+   "name": "矿石精炼厂",
+   "view": {
+    "sprite": "allied.ore_refinery"
+   },
+   "icon": "icon.allied.ore_refinery",
+   "requires": [
+    "power_plant"
+   ],
+   "power": {
+    "produce": 0,
+    "consume": 50
+   },
+   "income": {
+    "per_second": 70,
+    "needs_power": true
+   },
+   "tab": "structure",
+   "death_sound": "sfx.die.building"
+  },
+  "barracks": {
+   "cost": 500,
+   "hp": 1000,
+   "armor": "steel",
+   "size": [
+    3,
+    2
+   ],
+   "build_time": 8,
+   "name": "兵营",
+   "view": {
+    "sprite": "allied.barracks"
+   },
+   "icon": "icon.allied.barracks",
+   "requires": [
+    "power_plant"
+   ],
+   "power": {
+    "produce": 0,
+    "consume": 10
+   },
+   "tab": "structure",
+   "death_sound": "sfx.die.building"
+  },
+  "war_factory": {
+   "cost": 2000,
+   "hp": 2000,
+   "armor": "wood",
+   "size": [
+    5,
+    3
+   ],
+   "build_time": 12,
+   "name": "战车工厂",
+   "view": {
+    "sprite": "allied.war_factory"
+   },
+   "icon": "icon.allied.war_factory",
+   "requires": [
+    "ore_refinery",
+    "barracks"
+   ],
+   "power": {
+    "produce": 0,
+    "consume": 25
+   },
+   "tab": "structure",
+   "death_sound": "sfx.die.building"
+  },
+  "pillbox": {
+   "cost": 500,
+   "hp": 400,
+   "armor": "steel",
+   "size": [
+    1,
+    1
+   ],
+   "build_time": 5,
+   "name": "机枪碉堡",
+   "view": {
+    "sprite": "allied.pillbox"
+   },
+   "icon": "icon.allied.pillbox",
+   "weapon": "vulcan",
+   "threat": 1,
+   "tab": "defense",
+   "death_sound": "sfx.die.building"
+  },
+  "prism_tower": {
+   "cost": 1500,
+   "hp": 1500,
+   "armor": "steel",
+   "size": [
+    1,
+    1
+   ],
+   "build_time": 10,
+   "name": "光棱塔",
+   "view": {
+    "sprite": "allied.prism_tower"
+   },
+   "icon": "icon.allied.prism_tower",
+   "requires": [
+    "war_factory"
+   ],
+   "weapon": "prism_shot",
+   "threat": 1,
+   "power": {
+    "produce": 0,
+    "consume": 75
+   },
+   "tab": "defense",
+   "death_sound": "sfx.die.building"
+  },
+  "patriot": {
+   "cost": 1000,
+   "hp": 1000,
+   "armor": "steel",
+   "size": [
+    1,
+    1
+   ],
+   "build_time": 8,
+   "name": "爱国者导弹",
+   "view": {
+    "sprite": "allied.patriot",
+    "turret": {
+     "sprite": "allied.patriot.turret",
+     "offset": [
+      0,
+      2
+     ]
+    }
+   },
+   "icon": "icon.allied.patriot",
+   "requires": [
+    "war_factory"
+   ],
+   "weapon": "redeye",
+   "threat": 1,
+   "power": {
+    "produce": 0,
+    "consume": 50
+   },
+   "tab": "defense",
+   "death_sound": "sfx.die.building"
+  },
+  "grand_cannon": {
+   "cost": 2000,
+   "hp": 2000,
+   "armor": "steel",
+   "size": [
+    2,
+    2
+   ],
+   "build_time": 14,
+   "name": "巨炮",
+   "view": {
+    "sprite": "allied.grand_cannon",
+    "turret": {
+     "sprite": "allied.grand_cannon.turret",
+     "offset": [
+      0,
+      2
+     ]
+    }
+   },
+   "icon": "icon.allied.grand_cannon",
+   "requires": [
+    "war_factory"
+   ],
+   "weapon": "grand_cannon",
+   "threat": 1,
+   "power": {
+    "produce": 0,
+    "consume": 0
+   },
+   "tab": "defense",
+   "death_sound": "sfx.die.building"
+  }
+ }
+}

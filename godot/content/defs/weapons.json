@@ -1,0 +1,153 @@
+{
+ "kind": "weapon",
+ "defs": {
+  "vulcan": {
+   "damage": 50,
+   "cooldown": 0.833,
+   "range": 7,
+   "warhead": "sa",
+   "targets": [
+    "ground"
+   ],
+   "projectile": {
+    "type": "instant"
+   },
+   "visual": "tracer",
+   "sound": "sfx.fire.pillbox"
+  },
+  "prism_shot": {
+   "damage": 260,
+   "cooldown": 2.0,
+   "range": 9,
+   "warhead": "prism",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "instant",
+    "splash": 0.8
+   },
+   "visual": "beam",
+   "sound": "sfx.fire.prism"
+  },
+  "redeye": {
+   "damage": 90,
+   "cooldown": 1.333,
+   "range": 12,
+   "warhead": "samwh",
+   "targets": [
+    "air"
+   ],
+   "projectile": {
+    "type": "bullet",
+    "speed": 14
+   },
+   "visual": "tracer",
+   "sound": "sfx.fire.patriot",
+   "impact_sound": "sfx.explosion.small"
+  },
+  "grand_cannon": {
+   "damage": 205,
+   "cooldown": 3.333,
+   "range": 15,
+   "warhead": "grand_cannon",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "artillery",
+    "speed": 12,
+    "splash": 2.0
+   },
+   "visual": "arc",
+   "sound": "sfx.fire.grand_cannon",
+   "impact_sound": "sfx.explosion.large"
+  },
+  "carbine": {
+   "damage": 15,
+   "cooldown": 0.667,
+   "range": 5,
+   "warhead": "sa",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "instant"
+   },
+   "visual": "tracer",
+   "sound": "sfx.fire.conscript"
+  },
+  "tank_120mm": {
+   "damage": 105,
+   "cooldown": 2.0,
+   "range": 7,
+   "warhead": "ap",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "bullet",
+    "speed": 14
+   },
+   "visual": "tracer",
+   "sound": "sfx.fire.rhino",
+   "impact_sound": "sfx.explosion.small"
+  },
+  "apoc_howitzer": {
+   "damage": 300,
+   "cooldown": 3.333,
+   "range": 10,
+   "warhead": "howitzer",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "artillery",
+    "speed": 11,
+    "splash": 1.2
+   },
+   "visual": "arc",
+   "sound": "sfx.fire.apocalypse",
+   "impact_sound": "sfx.explosion.large"
+  },
+  "v3_rocket": {
+   "damage": 200,
+   "cooldown": 4.667,
+   "range": 11,
+   "warhead": "v3",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "artillery",
+    "speed": 10,
+    "splash": 1.5
+   },
+   "visual": "arc",
+   "sound": "sfx.fire.v3",
+   "impact_sound": "sfx.explosion.large"
+  },
+  "blimp_bomb": {
+   "damage": 130,
+   "cooldown": 1.333,
+   "range": 1.5,
+   "warhead": "blimp",
+   "targets": [
+    "ground",
+    "structure"
+   ],
+   "projectile": {
+    "type": "instant",
+    "splash": 2.5
+   },
+   "visual": "",
+   "sound": "sfx.fire.kirov"
+  }
+ }
+}

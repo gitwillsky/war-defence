@@ -1,0 +1,140 @@
+{
+ "kind": "warhead",
+ "defs": {
+  "sa": {
+   "verses": {
+    "none": 1.0,
+    "flak": 0.8,
+    "plate": 0.8,
+    "light": 0.5,
+    "medium": 0.55,
+    "heavy": 0.55,
+    "wood": 0.75,
+    "steel": 0.5,
+    "concrete": 0.25,
+    "special_1": 0.8,
+    "special_2": 1.0
+   }
+  },
+  "ap": {
+   "verses": {
+    "none": 0.25,
+    "flak": 0.25,
+    "plate": 0.15,
+    "light": 0.75,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 0.65,
+    "steel": 0.45,
+    "concrete": 0.6,
+    "special_1": 0.6,
+    "special_2": 1.0
+   }
+  },
+  "prism": {
+   "verses": {
+    "none": 2.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 1.0,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 0.5,
+    "steel": 0.5,
+    "concrete": 0.5,
+    "special_1": 2.0,
+    "special_2": 1.0
+   }
+  },
+  "samwh": {
+   "verses": {
+    "none": 1.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 1.0,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 0.0,
+    "steel": 0.0,
+    "concrete": 0.0,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  },
+  "grand_cannon": {
+   "verses": {
+    "none": 1.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 1.0,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 0.3,
+    "steel": 0.25,
+    "concrete": 0.2,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  },
+  "howitzer": {
+   "verses": {
+    "none": 0.6,
+    "flak": 0.5,
+    "plate": 0.4,
+    "light": 1.2,
+    "medium": 1.0,
+    "heavy": 0.8,
+    "wood": 0.5,
+    "steel": 0.4,
+    "concrete": 0.3,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  },
+  "v3": {
+   "verses": {
+    "none": 1.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 1.0,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 0.9,
+    "steel": 0.7,
+    "concrete": 0.6,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  },
+  "blimp": {
+   "verses": {
+    "none": 1.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 0.7,
+    "medium": 0.35,
+    "heavy": 0.35,
+    "wood": 0.85,
+    "steel": 0.75,
+    "concrete": 0.5,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  },
+  "lightning": {
+   "verses": {
+    "none": 1.0,
+    "flak": 1.0,
+    "plate": 1.0,
+    "light": 1.0,
+    "medium": 1.0,
+    "heavy": 1.0,
+    "wood": 1.0,
+    "steel": 1.0,
+    "concrete": 1.0,
+    "special_1": 1.0,
+    "special_2": 1.0
+   }
+  }
+ }
+}

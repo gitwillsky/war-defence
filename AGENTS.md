@@ -23,7 +23,7 @@ make check          静态规则检查（行数、分层依赖）—— 提交�
 make format         格式化 GDScript（需 pip install gdtoolkit）
 make run            运行游戏（默认 /Applications/Godot.app，可用 GODOT=路径 覆盖）
 make editor         用编辑器打开工程
-make import-assets  运行素材管线（M0 之后可用）
+make import-assets  运行素材管线（生成 godot/packs/ra2-ta4，需要 ffmpeg）
 ```
 
 ## 目录
@@ -62,6 +62,6 @@ godot/              Godot 工程根（project.godot 在此）
 
 ## 当前进度
 
-文档与工程骨架已就绪。**M0（素材管线验证）进行中**：MIX 读取已完成（含加密头），详见 [asset-pipeline.md](docs/design/asset-pipeline.md) §7、§8。下一步：SHP + 调色板解码、`rulesmd.ini` 转 JSON、VXL 方向渲染。
+素材管线已能产出完整 v1 素材包（建筑、体素载具、步兵、特效、地面/树木、原版侧边栏界面、音效与音乐）。游戏已可完整玩一局：建造 → 12 波敌军 → 胜负结算。`godot/src/app/dev/autoplay.gd` 是开发用机器人，可无人值守跑一局并截图。接下来重点：补功能（光标、选取/更多交互、存档菜单等），**数值平衡放最后**。
 
 工具链首次使用：`make setup`（创建 `.venv`，管线脚本用 `.venv/bin/python`）。**mod 里被 7zAES 密码保护的 `.mix`（实为 7z）不要尝试破解。**
