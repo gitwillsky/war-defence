@@ -141,6 +141,11 @@ war-defence/
 - 每种武器引用一个弹头；弹头对每种护甲类型有伤害倍率（`Verses`）；目标有护甲类型。
 - 伤害 = 武器基础伤害 × `Verses[弹头][护甲]` × 距离衰减（可选）。
 - `combat` 只提供机制（索敌、冷却、弹道、结算）；具体数值全在定义里。
+- 表现由武器定义的 `fx` 字段驱动（`view/world_view.gd`、`projectile_view.gd`、`fx_node.gd`），只用素材 id：
+  `muzzle`/`muzzle_scale`（枪口焰）、`muzzle_forward`（炮管长度，格；起点沿瞄准方向前移到炮口）、`launch`（发射烟）、
+  `beam`/`tracer`（光束、曳光）、`projectile`/`scale`/`color`/`size`/`arc`（飞行弹体：体素精灵或发光弹头、抛物高度）、
+  `trail`/`trail_interval`/`trail_scale`（拖尾）、`impact`/`impact_scale`（弹着）。
+  弹丸视图在第一次刷新时才读取 `state`（spawn 事件发出时武器、目标尚未写入）。
 
 ### 5.7 经济与电力
 

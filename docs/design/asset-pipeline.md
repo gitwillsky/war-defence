@@ -230,8 +230,17 @@ tools/asset_pipeline/
 ## 10. v1 实现补充（以此为准）
 
 - **主题**：雪地（snow）。建筑用 `unitsno.pal`，地形用 `isosno.pal`，界面用 `sidebar.pal`，图标用 `cameo.pal`，特效用 `anim.pal`。
-- **队伍色**：建筑与盟军单位把调色板 16–31 红色段交换 R/B 成蓝色；苏军保持红色。
+- **队伍色**：建筑与盟军单位把调色板 16–31 红色段按亮度重新着色成皇家蓝（`voxel_render.TEAM_TINT`）；苏军保持红色。
 - **建筑锚点**：`anchor.x = 画布宽/2`，`anchor.y = 第0帧底边 − (占地宽+占地高) × 7.5`；帧 0 正常、帧 1 受损、帧 3–5 为对应阴影（合成为半透明黑垫在下面）。
+- **建筑部件**（`pack/building_parts.py`，数据来自 `artmd.ini`）：主体 SHP 并不完整，门坡、涡轮、灯光等在单独的 SHP 里。
+  主体精灵带 `parts = {bib?, buildup?, overlays?: [{sprite, on?}]}`：`<id>.bib`（BibShape 底座，画在最下）、
+  `<id>.buildup`（Buildup 建造动画，动画名 `build`，引擎按建造进度取帧，取代半透明）、
+  `<id>.underdooranim/activeanim/activeanimtwo…`（常驻循环层，`idle` + 可选 `damaged`）、
+  `<id>.specialanim`（`on: "fire"`，仅 `IsAnimDelayedFire=yes` 的建筑，如光棱塔蓄能，开火时播一次）。
+  部件与主体共用画布中心，锚点按画布尺寸差平移，并裁到包围盒；帧率 = `Rate / 25`。
+- **体素着色**：按原版做法，每个体素的法线下标查 RA2 法线表（OpenRA 的 `VoxelNormalsPalette.cs`，`make setup` 下载到 `third_party/openra/`，缺失时用占据场梯度估算），与平滑的几何法线平均后求 n·L，
+  选 `voxels.vpl` 的明暗段（4 + 19 × n·L），再由 VPL 把基础色映射到调色板色。逐像素渲染（不超采样）、深度缓冲、补单像素空洞——
+  超采样或无深度缓冲都会让模型发虚、像半透明。
 - **炮塔**：`allied.grand_cannon.turret` / `allied.patriot.turret` 是单独的 16 方向体素精灵，实体定义 `view.turret = {sprite, offset}` 叠加绘制。
 - **步兵**：SHP 方向序为西北起逆时针，管线重排成引擎序（北起顺时针）；每个动画按"方向×帧"展开，所以不需要 `step` 字段（`die` 也复制到每个方向）。阴影色索引 12 画成半透明黑。
 - **地面与物件**：`terrain.ground`（+ `terrain.ground_1..N` 点缀变体）、`prop.tree_N`（锚点取树干底部）。
